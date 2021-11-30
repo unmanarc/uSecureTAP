@@ -171,6 +171,7 @@ public:
                   tapIfaceEthAddress.h_dest[0],tapIfaceEthAddress.h_dest[1],tapIfaceEthAddress.h_dest[2],
                 tapIfaceEthAddress.h_dest[3], tapIfaceEthAddress.h_dest[4], tapIfaceEthAddress.h_dest[5]);
 
+        appOptions.tapHwAddrHash = Abstract::MACADDR::_toHash(tapIfaceEthAddress.h_dest);
         appOptions.ipv4 = ((Memory::Abstract::BOOL *)globalArguments->getCommandLineOptionValue("ipv4"))->getValue();
         appOptions.notls = ((Memory::Abstract::BOOL *)globalArguments->getCommandLineOptionValue("notls"))->getValue();
 

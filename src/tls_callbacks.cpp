@@ -77,7 +77,10 @@ bool TLS_Callbacks::onConnect(void *obj, Network::Streams::StreamSocket *sock, c
             if (headers.isIPv4)
             {
                 // Rewrite MAC Address using the peer definition...
-                Abstract::MACADDR::_fromHASH(peerDefinition.macAddrHash, headers.ethh->h_source);
+                Abstract::MACADDR::_fromHASH( peerDefinition.macAddrHash, headers.ethh->h_source );
+                // Everthing is for me...
+                Abstract::MACADDR::_fromHASH( appOptions->tapHwAddrHash, headers.ethh->h_dest );
+
                 // Write to tap interface...
                 ssize_t x;
                 if ((x=appOptions->tapIface.writePacket(headers.ethh, headers.fullPacketLen))!=headers.fullPacketLen)

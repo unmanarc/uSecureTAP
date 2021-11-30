@@ -25,6 +25,7 @@ struct sAppOptions
     CX2::Network::Interfaces::VirtualNetworkInterface tapIface;
 
     sPeerDefinition localTapOptions;
+    uint64_t tapHwAddrHash;
 
     // Map IP->Peer Definition (IP is the authentication User)
     std::map<uint32_t,sPeerDefinition> peersDefinition;
