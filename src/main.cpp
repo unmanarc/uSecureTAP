@@ -71,6 +71,46 @@ public:
 
     }
 
+    bool loadTLSParameters(Network::Sockets::Socket_TCP *sock, bool clientMode)
+    {
+        if (!appOptions.cafile.empty() || clientMode)
+        {
+            if (access(appOptions.cafile.c_str(),R_OK))
+            {
+                log->log0(__func__,Logs::LEVEL_CRITICAL, "X.509 Certificate Authority File Not Found.");
+                return false;
+            }
+            ((CX2::Network::TLS::Socket_TLS *)sock)->setTLSCertificateAuthorityPath(appOptions.cafile.c_str());
+            log->log0(__func__,Logs::LEVEL_INFO, "The peer will be authenticated with the TLS Certificate Authority");
+        }
+        else
+            log->log0(__func__,Logs::LEVEL_WARN, "The peer can come without TLS signature, Internal VPN IP will be exposed.");
+
+        // Need server certificates:
+        if (!clientMode || !appOptions.keyfile.empty())
+        {
+            if (access(appOptions.keyfile.c_str(),R_OK))
+            {
+                log->log0(__func__,Logs::LEVEL_CRITICAL, "X.509 Private Key not found.");
+                return false;
+            }
+            log->log0(__func__,Logs::LEVEL_INFO, "Using peer TLS private key: %s",appOptions.keyfile.c_str());
+            ((CX2::Network::TLS::Socket_TLS *)sock)->setTLSPrivateKeyPath(appOptions.keyfile.c_str());
+        }
+
+        if (!clientMode || !appOptions.certfile.empty())
+        {
+            if (access(appOptions.certfile.c_str(),R_OK))
+            {
+                log->log0(__func__,Logs::LEVEL_CRITICAL, "X.509 Certificate not found.");
+                return false;
+            }
+            log->log0(__func__,Logs::LEVEL_INFO, "Using peer TLS certificate: %s",appOptions.certfile.c_str());
+            ((CX2::Network::TLS::Socket_TLS *)sock)->setTLSPublicKeyPath(appOptions.certfile.c_str());
+        }
+        return true;
+    }
+
     bool _config(int argc, char *argv[], Arguments::GlobalArguments * globalArguments)
     {
         CX2::Network::TLS::Socket_TLS::prepareTLS();
@@ -254,36 +294,8 @@ public:
         {
             if (!appOptions.notls)
             {
-                if (!appOptions.cafile.empty())
-                {
-                    if (access(appOptions.cafile.c_str(),R_OK))
-                    {
-                        log->log0(__func__,Logs::LEVEL_CRITICAL, "X.509 Certificate Authority File Not Found.");
-                        exit(-11);
-                        return false;
-                    }
-                    ((CX2::Network::TLS::Socket_TLS *)sock)->setTLSCertificateAuthorityPath(appOptions.cafile.c_str());
-                    log->log0(__func__,Logs::LEVEL_INFO, "Clients will be authenticated with the TLS Certificate Authority");
-                }
-                else
-                    log->log0(__func__,Logs::LEVEL_WARN, "Clients can come without TLS signature, Internal VPN IP will be exposed.");
-
-                // Need server certificates:
-                if (access(appOptions.keyfile.c_str(),R_OK))
-                {
-                    log->log0(__func__,Logs::LEVEL_CRITICAL, "X.509 Private Key not found.");
-                    exit(-10);
-                    return false;
-                }
-                ((CX2::Network::TLS::Socket_TLS *)sock)->setTLSPrivateKeyPath(appOptions.keyfile.c_str());
-
-                if (access(appOptions.certfile.c_str(),R_OK))
-                {
-                    log->log0(__func__,Logs::LEVEL_CRITICAL, "X.509 Certificate not found.");
-                    exit(-11);
-                    return false;
-                }
-                ((CX2::Network::TLS::Socket_TLS *)sock)->setTLSPublicKeyPath(appOptions.certfile.c_str());
+                if (!loadTLSParameters(sock,false))
+                    exit(-105);
             }
 
             if (!sock->listenOn( appOptions.port, appOptions.addr.c_str() ))
@@ -303,20 +315,15 @@ public:
         {
             if (!appOptions.notls)
             {
-                // Need validate with ca...
-                if (access(appOptions.cafile.c_str(),R_OK))
-                {
-                    log->log0(__func__,Logs::LEVEL_CRITICAL, "X.509 Certificate Authority not found.");
-                    exit(-11);
-                    return false;
-                }
-                ((CX2::Network::TLS::Socket_TLS *)sock)->setTLSCertificateAuthorityPath(appOptions.cafile.c_str());
+                if (!loadTLSParameters(sock,true))
+                    exit(-105);
             }
         }
 
 
         return true;
     }
+
 
     int _start(int argc, char *argv[], Arguments::GlobalArguments * globalArguments)
     {
@@ -339,15 +346,9 @@ public:
 
                 if (!appOptions.notls)
                 {
-                    if (access(appOptions.cafile.c_str(),R_OK))
-                    {
-                        log->log0(__func__,Logs::LEVEL_CRITICAL, "X.509 Certificate Authority not found.");
-                        exit(-11);
-                        return false;
-                    }
-                    ((CX2::Network::TLS::Socket_TLS *)sock)->setTLSCertificateAuthorityPath(appOptions.cafile.c_str());
+                    if (!loadTLSParameters(sock,true))
+                        exit(-104);
                 }
-
 
                 log->log0(__func__,Logs::LEVEL_INFO, "Connecting to %s://%s:%d", appOptions.notls?"tcp":"tls",appOptions.addr.c_str(),appOptions.port);
 
