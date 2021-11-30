@@ -38,11 +38,11 @@ void virtIfaceReader(sAppOptions *appOptions)
             }
             else if(headers.isARP)
             {
-                if (        headers.arph->ar_hrd == 0x01 // EThernet
-                        &&  headers.arph->ar_pro == 0x0800 // IPv4
+                if (        ntohs(headers.arph->ar_hrd) == 0x01 // EThernet
+                        &&  ntohs(headers.arph->ar_pro) == 0x0800 // IPv4
                         &&  headers.arph->ar_hln == 6 // ETHERNET ADDR LEN
                         &&  headers.arph->ar_pln == 4 // IPV4 ADDR LEN
-                        &&  headers.arph->ar_op  == 1 // ARP REQUEST
+                        &&  ntohs(headers.arph->ar_op)  == 1 // ARP REQUEST
                         )
                 {
 
@@ -65,7 +65,7 @@ void virtIfaceReader(sAppOptions *appOptions)
                             {
                                 // Make the response here.
                                 std::swap(headers.ethh->h_dest,headers.ethh->h_source);
-                                headers.arph->ar_op = 2; // ARP RESPONSE.
+                                headers.arph->ar_op = htons(2); // ARP RESPONSE.
                                 std::swap(headers.arph->ar_sha,headers.arph->ar_tha);  /* sender hardware address      */ /* target hardware address      */
                                 std::swap(headers.arph->ar_sip,headers.arph->ar_tip); /* sender IP address            */  /* target IP address            */
 
