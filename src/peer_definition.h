@@ -54,7 +54,7 @@ struct sPeerDefinition
 
         if (macReg.empty())
         {
-            macAddrHash = 0xFFFFFFFF;
+            macAddrHash = 0xFFFFFFFFFFFFFFFF;
             return true; // No mac address specified...
         }
 
