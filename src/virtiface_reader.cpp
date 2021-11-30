@@ -64,14 +64,14 @@ void virtIfaceReader(sAppOptions *appOptions)
                             if (dissectNetworkPacket(packetcpy,len,&headerscpy))
                             {
                                 // Make the response here.
-                                std::swap(headers.ethh->h_dest,headers.ethh->h_source);
-                                headers.arph->ar_op = htons(2); // ARP RESPONSE.
-                                std::swap(headers.arph->ar_sha,headers.arph->ar_tha);  /* sender hardware address      */ /* target hardware address      */
-                                std::swap(headers.arph->ar_sip,headers.arph->ar_tip); /* sender IP address            */  /* target IP address            */
+                                std::swap(headerscpy.ethh->h_dest,headerscpy.ethh->h_source);
+                                headerscpy.arph->ar_op = htons(2); // ARP RESPONSE.
+                                std::swap(headerscpy.arph->ar_sha,headerscpy.arph->ar_tha);  /* sender hardware address      */ /* target hardware address      */
+                                std::swap(headerscpy.arph->ar_sip,headerscpy.arph->ar_tip); /* sender IP address            */  /* target IP address            */
 
                                 // Define the sender hardware address using the MAC Address from the configuration..
-                                Abstract::MACADDR::_fromHASH(hEthRequested,headers.arph->ar_sha);
-                                Abstract::MACADDR::_fromHASH(hEthRequested,headers.ethh->h_source);
+                                Abstract::MACADDR::_fromHASH(hEthRequested,headerscpy.arph->ar_sha);
+                                Abstract::MACADDR::_fromHASH(hEthRequested,headerscpy.ethh->h_source);
 
                                 // Now send the response back to the virtual interface:
                                 appOptions->tapIface.writePacket(packetcpy,len);
