@@ -49,24 +49,24 @@ public:
         globalArguments->setEmail("aaron@unmanarc.com");
         globalArguments->setDescription("Unmanarc's Secure TAP Bridge");
 
-        globalArguments->addCommandLineOption("TAP Interface", 'i', "interface" , "Interface Name"  , "utap0", Abstract::TYPE_STRING);
+        globalArguments->addCommandLineOption("TAP Interface", 'i', "interface" , "Interface Name"  , "utap0",                      Abstract::TYPE_STRING);
 
-        globalArguments->addCommandLineOption("TLS Options", '9', "notls" , "Disable the use of TLS"  , "false", Abstract::TYPE_BOOL);
-        globalArguments->addCommandLineOption("TLS Options", '4', "ipv4" , "Use only IPv4"  , "true", Abstract::TYPE_BOOL);
-        globalArguments->addCommandLineOption("TLS Options", 'y', "cafile" , "X.509 Certificate Authority Path", "", Abstract::TYPE_STRING);
-        globalArguments->addCommandLineOption("TLS Options", 'k', "keyfile" , "X.509 Private Key Path (For listening mode)"  , "", Abstract::TYPE_STRING);
+        globalArguments->addCommandLineOption("TLS Options", '9', "notls" , "Disable the use of TLS"  , "false",                    Abstract::TYPE_BOOL);
+        globalArguments->addCommandLineOption("TLS Options", '4', "ipv4" , "Use only IPv4"  , "true",                               Abstract::TYPE_BOOL);
+        globalArguments->addCommandLineOption("TLS Options", 'y', "cafile" , "X.509 Certificate Authority Path", "",                Abstract::TYPE_STRING);
+        globalArguments->addCommandLineOption("TLS Options", 'k', "keyfile" , "X.509 Private Key Path (For listening mode)"  , "",  Abstract::TYPE_STRING);
         globalArguments->addCommandLineOption("TLS Options", 'c', "certfile" , "X.509 Certificate Path (For listening mode)"  , "", Abstract::TYPE_STRING);
-        globalArguments->addCommandLineOption("TLS Options", 'l', "listen" , "Use in listen mode"  , "false", Abstract::TYPE_BOOL);
-        globalArguments->addCommandLineOption("TLS Options", 'p', "port" , "Port"  , "443", Abstract::TYPE_UINT16);
-        globalArguments->addCommandLineOption("TLS Options", 'a', "addr" , "Address"  , "*", Abstract::TYPE_STRING);
-        globalArguments->addCommandLineOption("TLS Options", 't', "threads" , "Max Concurrent Connections (Threads)"  , "1024", Abstract::TYPE_UINT16);
+        globalArguments->addCommandLineOption("TLS Options", 'l', "listen" , "Use in listen mode"  , "false",                       Abstract::TYPE_BOOL);
+        globalArguments->addCommandLineOption("TLS Options", 'p', "port" , "Port"  , "443",                                         Abstract::TYPE_UINT16);
+        globalArguments->addCommandLineOption("TLS Options", 'a', "addr" , "Address"  , "*",                                        Abstract::TYPE_STRING);
+        globalArguments->addCommandLineOption("TLS Options", 't', "threads" , "Max Concurrent Connections (Threads)"  , "1024",     Abstract::TYPE_UINT16);
 
         globalArguments->addCommandLineOption("Authentication", 'f', "peersfile" , "Formatted multi line file (IP:PSK:MAC, first line is for myself)"  , "", Abstract::TYPE_STRING);
-        globalArguments->addCommandLineOption("Other Options", 's', "sys" , "Journalctl Log Mode (don't print colors or dates)"  , "false", Abstract::TYPE_BOOL);
+        globalArguments->addCommandLineOption("Other Options", 's', "sys" , "Journalctl Log Mode (don't print colors or dates)"  , "false",                  Abstract::TYPE_BOOL);
 
 #ifndef _WIN32
-        globalArguments->addCommandLineOption("Other Options", 'x', "uid" , "Drop Privileged to UID"  , "0", Abstract::TYPE_UINT16);
-        globalArguments->addCommandLineOption("Other Options", 'g', "gid" , "Drop Privileged to GID"  , "0", Abstract::TYPE_UINT16);
+        globalArguments->addCommandLineOption("Other Options", 'x', "uid" , "Drop Privileged to UID"  , "0",                        Abstract::TYPE_UINT16);
+        globalArguments->addCommandLineOption("Other Options", 'g', "gid" , "Drop Privileged to GID"  , "0",                        Abstract::TYPE_UINT16);
 #endif
 
     }
@@ -350,9 +350,7 @@ public:
                 log->log0(__func__,Logs::LEVEL_INFO, "Connecting to %s://%s:%d", appOptions.notls?"tcp":"tls",appOptions.addr.c_str(),appOptions.port);
 
                 if (sock->connectTo(appOptions.addr.c_str(),appOptions.port))
-                {
                     TLS_Callbacks::onConnect(&appOptions,sock, appOptions.addr.c_str(),true);
-                }
                 else
                 {
                     log->log0(__func__,Logs::LEVEL_ERR, "Connecting failed to %s://%s:%d - [%s]",  appOptions.notls?"tcp":"tls", appOptions.addr.c_str(),appOptions.port, sock->getLastError().c_str());
