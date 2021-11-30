@@ -163,13 +163,12 @@ public:
 #endif
 
 #ifdef _WIN32
-        log->log0(__func__,Logs::LEVEL_INFO, "TAP Network Interface IDX=%lu NAME=%s HWADDR=%02X:%02X:%02X:%02X:%02X:%02X Ready.", adapterIndex,
+        log->log0(__func__,Logs::LEVEL_INFO, "TAP Network Interface IDX=%lu NAME=%s HWADDR=%s Ready.", adapterIndex,
           #else
-        log->log0(__func__,Logs::LEVEL_INFO, "TAP Network Interface NAME=%s HWADDR=%02X:%02X:%02X:%02X:%02X:%02X Ready.",
+        log->log0(__func__,Logs::LEVEL_INFO, "TAP Network Interface NAME=%s HWADDR=%s Ready.",
           #endif
                   tapReadInterfaceName.c_str(),
-                  tapIfaceEthAddress.h_dest[0],tapIfaceEthAddress.h_dest[1],tapIfaceEthAddress.h_dest[2],
-                tapIfaceEthAddress.h_dest[3], tapIfaceEthAddress.h_dest[4], tapIfaceEthAddress.h_dest[5]);
+                  Abstract::MACADDR::_toString(tapIfaceEthAddress.h_dest).c_str());
 
         appOptions.tapHwAddrHash = Abstract::MACADDR::_toHash(tapIfaceEthAddress.h_dest);
         appOptions.ipv4 = ((Memory::Abstract::BOOL *)globalArguments->getCommandLineOptionValue("ipv4"))->getValue();
