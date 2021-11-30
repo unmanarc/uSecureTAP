@@ -145,6 +145,8 @@ public:
             exit(-5);
         }
 
+        sleep(1);
+
         tapIfaceEthAddress = tapIfaceCfg.getEthernetAddress();
 
         if (!memcmp(tapIfaceEthAddress.h_dest,"\0\0\0\0\0\0",6))
