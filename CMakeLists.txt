@@ -33,9 +33,9 @@ target_link_libraries(${APP_NAME} "cx2_hlp_functions.a")
 target_link_libraries(${APP_NAME} "cx2_thr_mutex.a")
 target_link_libraries(${APP_NAME} "cx2_thr_threads.a")
 target_link_libraries(${APP_NAME} "cx2_mem_vars.a")
-target_link_libraries(${APP_NAME} "-lpthread")
 target_link_libraries(${APP_NAME} "ssl.a")
 target_link_libraries(${APP_NAME} "crypto.a")
+target_link_libraries(${APP_NAME} "pthread")
 target_link_libraries(${APP_NAME} "-lz")
 
 if (WIN32)
@@ -43,6 +43,3 @@ if (WIN32)
 else()
     target_link_libraries(${APP_NAME} "-lrt -ldl")
 endif()
-
-
-
