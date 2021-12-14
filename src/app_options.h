@@ -15,15 +15,15 @@
 struct sAppOptions
 {
     bool ipv4,listenMode, notls;
-    std::string cafile,keyfile,certfile;
-
-    std::string ifaceName;
-    std::string addr;
+    std::string cafile,keyfile,certfile,ifaceName,addr,upScript,downScript;
     uint16_t port, threadsLimit, uid,gid;
+
+
+    // LOG:
     CX2::Application::Logs::AppLog * log;
 
+    // TAP:
     CX2::Network::Interfaces::VirtualNetworkInterface tapIface;
-
     sPeerDefinition localTapOptions;
     uint64_t tapHwAddrHash;
 

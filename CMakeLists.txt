@@ -1,12 +1,14 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.10)
 include(GNUInstallDirs)
 
-set(SVERSION 1.00)
+set(SVERSION 1.01)
 set(APP_NAME "uSecureTAP")
 project(${APP_NAME})
-project(${PROJECT_NAME} VERSION ${SVERSION} DESCRIPTION "Unmanarc Secure TAP")
+project(${PROJECT_NAME} VERSION ${SVERSION} DESCRIPTION "Unmanarc's Secure TAP Bridge")
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+
+configure_file(src/config.h.in ${${APP_NAME}_SOURCE_DIR}/src/config.h)
 
 file(GLOB_RECURSE EDV_INCLUDE_FILES "src/*.h*")
 file(GLOB_RECURSE EDV_SOURCE_FILES "src/*.c*")

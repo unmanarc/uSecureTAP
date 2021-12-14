@@ -14,13 +14,11 @@
 #include "tls_callbacks.h"
 #include "virtiface_reader.h"
 
+#include "config.h"
+
 using namespace CX2;
 using namespace CX2::Memory;
 using namespace CX2::Application;
-
-#define VERSION_MAJOR 1
-#define VERSION_MINOR 0
-#define VERSION_PATCH 0
 
 class SecureTAPApp : public CX2::Application::Application
 {
@@ -42,12 +40,12 @@ public:
         gettimeofday(&time,nullptr);
         srand(((time.tv_sec * 1000) + (time.tv_usec / 1000))*getpid());
 
-        globalArguments->setVersion( VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, "alpha" );
+        globalArguments->setVersion( atoi(PROJECT_VER_MAJOR), atoi(PROJECT_VER_MINOR), atoi(PTOJECT_VER_PATCH), "" );
 
         globalArguments->setLicense("GPLv3");
         globalArguments->setAuthor("Aarón Mizrachi");
         globalArguments->setEmail("aaron@unmanarc.com");
-        globalArguments->setDescription("Unmanarc's Secure TAP Bridge");
+        globalArguments->setDescription(PROJECT_DESCRIPTION);
 
         globalArguments->addCommandLineOption("TAP Interface", 'i', "interface" , "Interface Name"  , "utap0",                      Abstract::TYPE_STRING);
 
@@ -61,6 +59,9 @@ public:
         globalArguments->addCommandLineOption("TLS Options", 'a', "addr" , "Address"  , "*",                                        Abstract::TYPE_STRING);
         globalArguments->addCommandLineOption("TLS Options", 't', "threads" , "Max Concurrent Connections (Threads)"  , "1024",     Abstract::TYPE_UINT16);
 
+        globalArguments->addCommandLineOption("Scripts", 'u', "up" , "Up Script (executed when connection is up)"  , "",            Abstract::TYPE_STRING);
+        globalArguments->addCommandLineOption("Scripts", 'w', "down" , "Down Script (executed when connection is down)"  , "",      Abstract::TYPE_STRING);
+
         globalArguments->addCommandLineOption("Authentication", 'f', "peersfile" , "Formatted multi line file (IP:PSK:MAC, first line is for myself)"  , "", Abstract::TYPE_STRING);
         globalArguments->addCommandLineOption("Other Options", 's', "sys" , "Journalctl Log Mode (don't print colors or dates)"  , "false",                  Abstract::TYPE_BOOL);
 
@@ -71,7 +72,7 @@ public:
 
     }
 
-    bool loadTLSParameters(Network::Sockets::Socket_TCP *sock, bool clientMode)
+    bool loadTLSParameters(Network::Sockets::Socket_TCP *sock, bool clientMode, bool printUsing = true)
     {
         if (!appOptions.cafile.empty() || clientMode)
         {
@@ -81,7 +82,10 @@ public:
                 return false;
             }
             ((CX2::Network::TLS::Socket_TLS *)sock)->setTLSCertificateAuthorityPath(appOptions.cafile.c_str());
-            log->log0(__func__,Logs::LEVEL_INFO, "The peer will be authenticated with the TLS Certificate Authority");
+
+            // Only print this in the header...
+            if (!printUsing)
+                log->log0(__func__,Logs::LEVEL_INFO, "The peer will be authenticated with the TLS Certificate Authority");
         }
         else
             log->log0(__func__,Logs::LEVEL_WARN, "The peer can come without TLS signature, Internal VPN IP will be exposed.");
@@ -94,7 +98,7 @@ public:
                 log->log0(__func__,Logs::LEVEL_CRITICAL, "X.509 Private Key not found.");
                 return false;
             }
-            log->log0(__func__,Logs::LEVEL_INFO, "Using peer TLS private key: %s",appOptions.keyfile.c_str());
+            if (printUsing) log->log0(__func__,Logs::LEVEL_INFO, "Using peer TLS private key: %s",appOptions.keyfile.c_str());
             ((CX2::Network::TLS::Socket_TLS *)sock)->setTLSPrivateKeyPath(appOptions.keyfile.c_str());
         }
 
@@ -105,7 +109,7 @@ public:
                 log->log0(__func__,Logs::LEVEL_CRITICAL, "X.509 Certificate not found.");
                 return false;
             }
-            log->log0(__func__,Logs::LEVEL_INFO, "Using peer TLS certificate: %s",appOptions.certfile.c_str());
+            if (printUsing) log->log0(__func__,Logs::LEVEL_INFO, "Using peer TLS certificate: %s",appOptions.certfile.c_str());
             ((CX2::Network::TLS::Socket_TLS *)sock)->setTLSPublicKeyPath(appOptions.certfile.c_str());
         }
         return true;
@@ -212,28 +216,25 @@ public:
                   tapReadInterfaceName.c_str(),
                   Abstract::MACADDR::_toString(tapIfaceEthAddress.h_dest).c_str());
 
-        appOptions.tapHwAddrHash = Abstract::MACADDR::_toHash(tapIfaceEthAddress.h_dest);
-        appOptions.ipv4 = ((Memory::Abstract::BOOL *)globalArguments->getCommandLineOptionValue("ipv4"))->getValue();
-        appOptions.notls = ((Memory::Abstract::BOOL *)globalArguments->getCommandLineOptionValue("notls"))->getValue();
+        appOptions.tapHwAddrHash    = Abstract::MACADDR::_toHash(tapIfaceEthAddress.h_dest);
+        appOptions.ipv4             = ((Memory::Abstract::BOOL *)globalArguments->getCommandLineOptionValue("ipv4"))->getValue();
+        appOptions.notls            = ((Memory::Abstract::BOOL *)globalArguments->getCommandLineOptionValue("notls"))->getValue();
 
         if (appOptions.notls)
             log->log0(__func__,Logs::LEVEL_WARN, "Proceding in plain-text mode, eavesdropping communications will be easy!!!");
 
-
-        appOptions.cafile = globalArguments->getCommandLineOptionValue("cafile")->toString();
-        appOptions.certfile = globalArguments->getCommandLineOptionValue("certfile")->toString();
-        appOptions.keyfile = globalArguments->getCommandLineOptionValue("keyfile")->toString();
-
-        appOptions.addr = globalArguments->getCommandLineOptionValue("addr")->toString();
-        appOptions.port = ((Memory::Abstract::UINT16 *)globalArguments->getCommandLineOptionValue("port"))->getValue();
-        appOptions.listenMode = ((Memory::Abstract::BOOL *)globalArguments->getCommandLineOptionValue("listen"))->getValue();
-
+        appOptions.upScript     = globalArguments->getCommandLineOptionValue("up")->toString();
+        appOptions.downScript   = globalArguments->getCommandLineOptionValue("down")->toString();
+        appOptions.cafile       = globalArguments->getCommandLineOptionValue("cafile")->toString();
+        appOptions.certfile     = globalArguments->getCommandLineOptionValue("certfile")->toString();
+        appOptions.keyfile      = globalArguments->getCommandLineOptionValue("keyfile")->toString();
+        appOptions.addr         = globalArguments->getCommandLineOptionValue("addr")->toString();
+        appOptions.port         = ((Memory::Abstract::UINT16 *)globalArguments->getCommandLineOptionValue("port"))->getValue();
+        appOptions.listenMode   = ((Memory::Abstract::BOOL *)globalArguments->getCommandLineOptionValue("listen"))->getValue();
         appOptions.threadsLimit = ((Memory::Abstract::UINT16 *)globalArguments->getCommandLineOptionValue("threads"))->getValue();
-
 
         sock = (appOptions.notls?new Network::Sockets::Socket_TCP:new Network::TLS::Socket_TLS ) ;
         sock->setUseIPv6( !appOptions.ipv4 );
-
 
         appOptions.uid = ((Memory::Abstract::UINT16 *)globalArguments->getCommandLineOptionValue("uid"))->getValue();
         appOptions.gid = ((Memory::Abstract::UINT16 *)globalArguments->getCommandLineOptionValue("gid"))->getValue();
@@ -248,53 +249,16 @@ public:
             exit(-601);
         }
 
-#ifndef _WIN32
-        // TODO: pasar a las CX
+        // Change the UID/GID values to be applied before _start.
+        globalArguments->setUid(appOptions.uid);
+        globalArguments->setGid(appOptions.gid);
 
-        if (getgid() != appOptions.gid || getuid() != appOptions.uid)
-        {
-            // Drop privileges and act like user process:
-            if (getgid() != appOptions.gid)
-            {
-                if (setgid(appOptions.gid))
-                {
-                    log->log0(__func__,Logs::LEVEL_CRITICAL, "Failed to drop privileges to group %d...",appOptions.gid);
-                    exit(-576);
-                }
-            }
-            if (getuid() != appOptions.uid)
-            {
-                if (setuid(appOptions.uid))
-                {
-                    log->log0(__func__,Logs::LEVEL_CRITICAL, "Failed to drop privileges to user %d...",appOptions.uid);
-                    exit(-579);
-                }
-            }
-
-            // Now change EUID/EGID...
-            if (setegid(appOptions.gid) != 0)
-            {
-                log->log0(__func__,Logs::LEVEL_CRITICAL, "Failed to drop extended privileges to group %d...",appOptions.gid);
-                exit(-578);
-            }
-
-            if (seteuid(appOptions.uid) != 0)
-            {
-                log->log0(__func__,Logs::LEVEL_CRITICAL, "Failed to drop extended privileges to user %d...",appOptions.uid);
-                exit(-577);
-            }
-            else
-            {
-                log->log0(__func__,Logs::LEVEL_INFO, "Application Privileges changed to UID=%d.",appOptions.uid );
-            }
-        }
-#endif
-
+        // Check if listen mode.
         if (appOptions.listenMode)
         {
             if (!appOptions.notls)
             {
-                if (!loadTLSParameters(sock,false))
+                if (!loadTLSParameters(sock,false,false))
                     exit(-105);
             }
 
@@ -315,7 +279,7 @@ public:
         {
             if (!appOptions.notls)
             {
-                if (!loadTLSParameters(sock,true))
+                if (!loadTLSParameters(sock,true,false))
                     exit(-105);
             }
         }
@@ -356,7 +320,7 @@ public:
                     TLS_Callbacks::onConnect(&appOptions,sock, appOptions.addr.c_str(),true);
                 else
                 {
-                    log->log0(__func__,Logs::LEVEL_ERR, "Connecting failed to %s://%s:%d - [%s]",  appOptions.notls?"tcp":"tls", appOptions.addr.c_str(),appOptions.port, sock->getLastError().c_str());
+                    log->log0(__func__,Logs::LEVEL_ERR, "Connecting to %s://%s:%d failed - [%s]",  appOptions.notls?"tcp":"tls", appOptions.addr.c_str(),appOptions.port, sock->getLastError().c_str());
 
                     if (!appOptions.notls)
                     {
@@ -378,8 +342,6 @@ private:
     Network::Sockets::Socket_TCP *sock;
     Network::Sockets::Acceptors::Socket_Acceptor_MultiThreaded multiThreadedAcceptor;
 };
-
-
 
 int main(int argc, char *argv[])
 {

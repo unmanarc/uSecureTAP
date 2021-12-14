@@ -4,6 +4,8 @@
 #include "pkt_dissector.h"
 #include "tls_connection.h"
 
+#include <cx2_hlp_functions/appexec.h>
+
 #include <cx2_hlp_functions/random.h>
 #include <cx2_net_sockets/cryptostream.h>
 
@@ -63,7 +65,18 @@ bool TLS_Callbacks::onConnect(void *obj, Network::Streams::StreamSocket *sock, c
         char data[65536];
         uint16_t datalen=65535;
 
-        appOptions->log->log1(__func__,Abstract::IPV4::_toString(uRemoteVPNIP),Logs::LEVEL_INFO, "Connected to '%s', CN='%s'", remoteAddr, tlsCN.c_str());
+        appOptions->log->log1(__func__,Abstract::IPV4::_toString(uRemoteVPNIP),Logs::LEVEL_INFO, "Authenticated to '%s', CN='%s'", remoteAddr, tlsCN.c_str());
+
+        // Call the UP Script after the authentication...
+        if (!appOptions->upScript.empty())
+        {
+            appOptions->log->log1(__func__,Abstract::IPV4::_toString(uRemoteVPNIP),Logs::LEVEL_INFO, "Executing '%s'", appOptions->upScript.c_str() );
+            CX2::Helpers::AppSpawn appUp;
+            appUp.setExec(appOptions->upScript);
+            appUp.addEnvironment("REMOTEIP=" + Abstract::IPV4::_toString(uRemoteVPNIP));
+            appUp.spawnProcess();
+            appUp.waitUntilProcessEnds();
+        }
 
         appOptions->connectedPeers.addElement( peerDefinition.macAddrHash, new TLS_Connection(sock,peerDefinition) );
         for (;sock->readBlock16(data,&datalen);)
@@ -91,6 +104,18 @@ bool TLS_Callbacks::onConnect(void *obj, Network::Streams::StreamSocket *sock, c
         // De-register connection...
         appOptions->connectedPeers.destroyElement( peerDefinition.macAddrHash );
         appOptions->log->log1(__func__,Abstract::IPV4::_toString(uRemoteVPNIP),Logs::LEVEL_WARN, "Disconnected from %s.", remoteAddr);
+
+        // Call the DOWN Script after the disconnection...
+        if (!appOptions->downScript.empty())
+        {
+            appOptions->log->log1(__func__,Abstract::IPV4::_toString(uRemoteVPNIP),Logs::LEVEL_INFO, "Executing '%s'", appOptions->downScript.c_str() );
+            CX2::Helpers::AppSpawn appDown;
+            appDown.setExec(appOptions->downScript);
+            appDown.addEnvironment("REMOTEIP=" + Abstract::IPV4::_toString(uRemoteVPNIP));
+            appDown.spawnProcess();
+            appDown.waitUntilProcessEnds();
+        }
+
         return true;
 
     }
