@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 include(GNUInstallDirs)
 
-set(SVERSION 1.01)
+set(SVERSION 1.0.1)
 set(APP_NAME "uSecureTAP")
 project(${APP_NAME})
 project(${PROJECT_NAME} VERSION ${SVERSION} DESCRIPTION "Unmanarc's Secure TAP Bridge")
