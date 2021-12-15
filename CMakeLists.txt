@@ -2,9 +2,9 @@ cmake_minimum_required(VERSION 3.10)
 include(GNUInstallDirs)
 
 set(SVERSION 1.0.1)
-set(APP_NAME "uSecureTAP")
+set(APP_NAME "uEtherDwarf")
 project(${APP_NAME})
-project(${PROJECT_NAME} VERSION ${SVERSION} DESCRIPTION "Unmanarc's Secure TAP Bridge")
+project(${PROJECT_NAME} VERSION ${SVERSION} DESCRIPTION "Unmanarc's L2 Virtual Private Network")
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
 
