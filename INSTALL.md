@@ -141,7 +141,7 @@ journalctl -xef -u uEtherDwarf
 
 Install the client will require some steps to be completed (please replace the required information...):
 
-- create your /etc/uetherdwarf/clientdir server dir:
+- create your /etc/uetherdwarf/clientdir client dir:
 
 ```
 mkdir -p /etc/uetherdwarf/clientdir
