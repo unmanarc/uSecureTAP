@@ -40,7 +40,7 @@ public:
         gettimeofday(&time,nullptr);
         srand(((time.tv_sec * 1000) + (time.tv_usec / 1000))*getpid());
 
-        globalArguments->setVersion( atoi(PROJECT_VER_MAJOR), atoi(PROJECT_VER_MINOR), atoi(PTOJECT_VER_PATCH), "" );
+        globalArguments->setVersion( atoi(PROJECT_VER_MAJOR), atoi(PROJECT_VER_MINOR), atoi(PROJECT_VER_PATCH), "" );
 
         globalArguments->setLicense("GPLv3");
         globalArguments->setAuthor("Aarón Mizrachi");
