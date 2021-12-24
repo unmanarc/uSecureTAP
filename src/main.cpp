@@ -3,6 +3,7 @@
 #include <cx2_prg_service/application.h>
 #include <cx2_net_sockets/socket_acceptor_multithreaded.h>
 #include <cx2_mem_vars/a_uint16.h>
+#include <cx2_mem_vars/a_uint32.h>
 #include <cx2_mem_vars/a_bool.h>
 #include <cx2_mem_vars/a_ipv4.h>
 
@@ -58,6 +59,8 @@ public:
         globalArguments->addCommandLineOption("TLS Options", 'p', "port" , "Port"  , "443",                                         Abstract::TYPE_UINT16);
         globalArguments->addCommandLineOption("TLS Options", 'a', "addr" , "Address"  , "*",                                        Abstract::TYPE_STRING);
         globalArguments->addCommandLineOption("TLS Options", 't', "threads" , "Max Concurrent Connections (Threads)"  , "1024",     Abstract::TYPE_UINT16);
+        globalArguments->addCommandLineOption("TLS Options", 'e', "pingevery" , "Ping every (Seconds), 0 to disable"  , "10",       Abstract::TYPE_UINT32);
+
 
         globalArguments->addCommandLineOption("Scripts", 'u', "up" , "Up Script (executed when connection is up)"  , "",            Abstract::TYPE_STRING);
         globalArguments->addCommandLineOption("Scripts", 'w', "down" , "Down Script (executed when connection is down)"  , "",      Abstract::TYPE_STRING);
@@ -232,6 +235,7 @@ public:
         appOptions.port         = ((Memory::Abstract::UINT16 *)globalArguments->getCommandLineOptionValue("port"))->getValue();
         appOptions.listenMode   = ((Memory::Abstract::BOOL *)globalArguments->getCommandLineOptionValue("listen"))->getValue();
         appOptions.threadsLimit = ((Memory::Abstract::UINT16 *)globalArguments->getCommandLineOptionValue("threads"))->getValue();
+        appOptions.pingEvery    = ((Memory::Abstract::UINT32 *)globalArguments->getCommandLineOptionValue("pingEvery"))->getValue();
 
         sock = (appOptions.notls?new Network::Sockets::Socket_TCP:new Network::TLS::Socket_TLS ) ;
         sock->setUseIPv6( !appOptions.ipv4 );

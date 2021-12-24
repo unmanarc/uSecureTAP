@@ -30,7 +30,10 @@ void virtIfaceReader(sAppOptions *appOptions)
                 TLS_Connection * connection = (TLS_Connection *)appOptions->connectedPeers.openElement( hEthDst );
                 if (connection)
                 {
-                    connection->sock->writeBlock16(packet,len);
+                    connection->writeLock.lock();
+                    connection->sock->writeBlockEx<uint16_t>(packet,len);
+                    connection->writeLock.unlock();
+
                     appOptions->connectedPeers.closeElement( hEthDst );
                 }
                 else

@@ -17,7 +17,7 @@ struct sAppOptions
     bool ipv4,listenMode, notls;
     std::string cafile,keyfile,certfile,ifaceName,addr,upScript,downScript;
     uint16_t port, threadsLimit, uid,gid;
-
+    uint32_t pingEvery;
 
     // LOG:
     CX2::Application::Logs::AppLog * log;

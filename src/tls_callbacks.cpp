@@ -38,9 +38,9 @@ bool TLS_Callbacks::onConnect(void *obj, Network::Streams::StreamSocket *sock, c
     appOptions->log->log0(__func__,Logs::LEVEL_INFO, "Connection established to HOST='%s' CN='%s'",remoteAddr, tlsCN.c_str());
 
     // Exchange remote VPN IP
-    sock->writeU32(appOptions->localTapOptions.aIpAddr.s_addr);
+    sock->writeU<uint32_t>(appOptions->localTapOptions.aIpAddr.s_addr);
 
-    uint32_t uRemoteVPNIP = sock->readU32(&ok);
+    uint32_t uRemoteVPNIP = sock->readU<uint32_t>(&ok);
     if (!ok) return false;
 
     sPeerDefinition peerDefinition;
@@ -79,8 +79,12 @@ bool TLS_Callbacks::onConnect(void *obj, Network::Streams::StreamSocket *sock, c
         }
 
         appOptions->connectedPeers.addElement( peerDefinition.macAddrHash, new TLS_Connection(sock,peerDefinition) );
-        for (;sock->readBlock16(data,&datalen);)
+        for (;sock->readBlockEx<uint16_t>(data,&datalen);)
         {
+            // PING:
+            if (!datalen)
+                continue;
+
             sDissectedPacketHeaders headers;
             if (!dissectNetworkPacket(data,datalen,&headers))
             {

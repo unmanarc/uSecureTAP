@@ -5,6 +5,8 @@
 #include <cx2_net_sockets/socket_tls.h>
 #include "peer_definition.h"
 
+#include <mutex>
+
 class TLS_Connection : public CX2::Threads::Safe::Map_Element
 {
 public:
@@ -15,6 +17,7 @@ public:
 
     CX2::Network::Streams::StreamSocket * sock;
     sPeerDefinition peerDefinition;
+    std::mutex writeLock;
 };
 
 
