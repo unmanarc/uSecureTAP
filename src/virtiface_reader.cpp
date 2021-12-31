@@ -1,11 +1,11 @@
 #include "virtiface_reader.h"
 #include "tls_connection.h"
 #include "pkt_dissector.h"
-#include <cx2_mem_vars/a_macaddr.h>
+#include <mdz_mem_vars/a_macaddr.h>
 
-using namespace CX2;
-using namespace CX2::Memory;
-using namespace CX2::Application;
+using namespace Mantids;
+using namespace Mantids::Memory;
+using namespace Mantids::Application;
 
 void virtIfaceReader(sAppOptions *appOptions)
 {

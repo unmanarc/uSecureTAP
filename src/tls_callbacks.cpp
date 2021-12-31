@@ -4,16 +4,16 @@
 #include "pkt_dissector.h"
 #include "tls_connection.h"
 
-#include <cx2_hlp_functions/appexec.h>
+#include <mdz_hlp_functions/appexec.h>
 
-#include <cx2_hlp_functions/random.h>
-#include <cx2_net_sockets/cryptostream.h>
+#include <mdz_hlp_functions/random.h>
+#include <mdz_net_sockets/cryptostream.h>
 
-#include <cx2_mem_vars/a_ipv4.h>
+#include <mdz_mem_vars/a_ipv4.h>
 
-using namespace CX2;
-using namespace CX2::Memory;
-using namespace CX2::Application;
+using namespace Mantids;
+using namespace Mantids::Memory;
+using namespace Mantids::Application;
 
 TLS_Callbacks::TLS_Callbacks()
 {
@@ -44,7 +44,7 @@ bool TLS_Callbacks::onConnect(void *obj, Network::Streams::StreamSocket *sock, c
     if (!ok) return false;
 
     sPeerDefinition peerDefinition;
-    peerDefinition.key = CX2::Helpers::Random::createRandomString(128);
+    peerDefinition.key = Mantids::Helpers::Random::createRandomString(128);
 
     // Establish a remote expected host key only when exist (otherwise will be a random value)
     // So, if the host/client is not defined, should be "impossible" to guess the password...
@@ -52,7 +52,7 @@ bool TLS_Callbacks::onConnect(void *obj, Network::Streams::StreamSocket *sock, c
         peerDefinition = appOptions->peersDefinition[uRemoteVPNIP];
 
     // Exchange keys (mutual auth):
-    CX2::Network::Streams::CryptoStream cstreams(sock);
+    Mantids::Network::Streams::CryptoStream cstreams(sock);
     if (cstreams.mutualChallengeResponseSHA256Auth( genCombinedKey(appOptions,peerDefinition) ,appOptions->listenMode) == std::make_pair(true,true))
     {
         // Peer not found:
@@ -71,7 +71,7 @@ bool TLS_Callbacks::onConnect(void *obj, Network::Streams::StreamSocket *sock, c
         if (!appOptions->upScript.empty())
         {
             appOptions->log->log1(__func__,Abstract::IPV4::_toString(uRemoteVPNIP),Logs::LEVEL_INFO, "Executing '%s'", appOptions->upScript.c_str() );
-            CX2::Helpers::AppSpawn appUp;
+            Mantids::Helpers::AppSpawn appUp;
             appUp.setExec(appOptions->upScript);
             appUp.addEnvironment("REMOTEIP=" + Abstract::IPV4::_toString(uRemoteVPNIP));
             appUp.spawnProcess();
@@ -113,7 +113,7 @@ bool TLS_Callbacks::onConnect(void *obj, Network::Streams::StreamSocket *sock, c
         if (!appOptions->downScript.empty())
         {
             appOptions->log->log1(__func__,Abstract::IPV4::_toString(uRemoteVPNIP),Logs::LEVEL_INFO, "Executing '%s'", appOptions->downScript.c_str() );
-            CX2::Helpers::AppSpawn appDown;
+            Mantids::Helpers::AppSpawn appDown;
             appDown.setExec(appOptions->downScript);
             appDown.addEnvironment("REMOTEIP=" + Abstract::IPV4::_toString(uRemoteVPNIP));
             appDown.spawnProcess();

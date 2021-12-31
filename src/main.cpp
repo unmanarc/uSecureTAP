@@ -1,11 +1,11 @@
 #include <thread>
 
-#include <cx2_prg_service/application.h>
-#include <cx2_net_sockets/socket_acceptor_multithreaded.h>
-#include <cx2_mem_vars/a_uint16.h>
-#include <cx2_mem_vars/a_uint32.h>
-#include <cx2_mem_vars/a_bool.h>
-#include <cx2_mem_vars/a_ipv4.h>
+#include <mdz_prg_service/application.h>
+#include <mdz_net_sockets/socket_acceptor_multithreaded.h>
+#include <mdz_mem_vars/a_uint16.h>
+#include <mdz_mem_vars/a_uint32.h>
+#include <mdz_mem_vars/a_bool.h>
+#include <mdz_mem_vars/a_ipv4.h>
 
 #include <sys/time.h>
 #include <fstream>
@@ -17,11 +17,11 @@
 
 #include "config.h"
 
-using namespace CX2;
-using namespace CX2::Memory;
-using namespace CX2::Application;
+using namespace Mantids;
+using namespace Mantids::Memory;
+using namespace Mantids::Application;
 
-class SecureTAPApp : public CX2::Application::Application
+class SecureTAPApp : public Mantids::Application::Application
 {
 public:
     SecureTAPApp() {
@@ -84,7 +84,7 @@ public:
                 log->log0(__func__,Logs::LEVEL_CRITICAL, "X.509 Certificate Authority File Not Found.");
                 return false;
             }
-            ((CX2::Network::TLS::Socket_TLS *)sock)->setTLSCertificateAuthorityPath(appOptions.cafile.c_str());
+            ((Mantids::Network::TLS::Socket_TLS *)sock)->setTLSCertificateAuthorityPath(appOptions.cafile.c_str());
 
             // Only print this in the header...
             if (!printUsing)
@@ -102,7 +102,7 @@ public:
                 return false;
             }
             if (printUsing) log->log0(__func__,Logs::LEVEL_INFO, "Using peer TLS private key: %s",appOptions.keyfile.c_str());
-            ((CX2::Network::TLS::Socket_TLS *)sock)->setTLSPrivateKeyPath(appOptions.keyfile.c_str());
+            ((Mantids::Network::TLS::Socket_TLS *)sock)->setTLSPrivateKeyPath(appOptions.keyfile.c_str());
         }
 
         if (!clientMode || !appOptions.certfile.empty())
@@ -113,14 +113,14 @@ public:
                 return false;
             }
             if (printUsing) log->log0(__func__,Logs::LEVEL_INFO, "Using peer TLS certificate: %s",appOptions.certfile.c_str());
-            ((CX2::Network::TLS::Socket_TLS *)sock)->setTLSPublicKeyPath(appOptions.certfile.c_str());
+            ((Mantids::Network::TLS::Socket_TLS *)sock)->setTLSPublicKeyPath(appOptions.certfile.c_str());
         }
         return true;
     }
 
     bool _config(int argc, char *argv[], Arguments::GlobalArguments * globalArguments)
     {
-        CX2::Network::TLS::Socket_TLS::prepareTLS();
+        Mantids::Network::TLS::Socket_TLS::prepareTLS();
         bool configUseFancy    = !((Memory::Abstract::BOOL *)globalArguments->getCommandLineOptionValue("sys"))->getValue();
 
         log = new Logs::AppLog();
@@ -184,7 +184,7 @@ public:
 
         appOptions.ifaceName = globalArguments->getCommandLineOptionValue("interface")->toString();
 
-        CX2::Network::Interfaces::NetIfConfig tapIfaceCfg;
+        Mantids::Network::Interfaces::NetIfConfig tapIfaceCfg;
         tapIfaceCfg.setUP(true);
         if ( ! appOptions.tapIface.start(&tapIfaceCfg,appOptions.ifaceName) )
         {
@@ -244,7 +244,7 @@ public:
         appOptions.gid = ((Memory::Abstract::UINT16 *)globalArguments->getCommandLineOptionValue("gid"))->getValue();
 
         tapIfaceCfg.setIPv4Address(appOptions.localTapOptions.aIpAddr,
-                                   CX2::Memory::Abstract::IPV4::_fromCIDRMask(appOptions.localTapOptions.cidrNetmask)
+                                   Mantids::Memory::Abstract::IPV4::_fromCIDRMask(appOptions.localTapOptions.cidrNetmask)
                                    );
 
         if (!tapIfaceCfg.apply())
@@ -328,7 +328,7 @@ public:
 
                     if (!appOptions.notls)
                     {
-                        for (const auto & i: ((CX2::Network::TLS::Socket_TLS *)sock)->getTLSErrorsAndClear())
+                        for (const auto & i: ((Mantids::Network::TLS::Socket_TLS *)sock)->getTLSErrorsAndClear())
                             log->log0(__func__,Logs::LEVEL_ERR, "TLS Error - [%s]", i.c_str());
                     }
                 }

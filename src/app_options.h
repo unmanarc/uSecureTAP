@@ -4,8 +4,8 @@
 #include "peer_definition.h"
 #include "tls_connection.h"
 
-#include <cx2_net_interfaces/virtualnetworkinterface.h>
-#include <cx2_thr_safecontainers/map.h>
+#include <mdz_net_interfaces/virtualnetworkinterface.h>
+#include <mdz_thr_safecontainers/map.h>
 
 
 #include <string>
@@ -20,10 +20,10 @@ struct sAppOptions
     uint32_t pingEvery;
 
     // LOG:
-    CX2::Application::Logs::AppLog * log;
+    Mantids::Application::Logs::AppLog * log;
 
     // TAP:
-    CX2::Network::Interfaces::VirtualNetworkInterface tapIface;
+    Mantids::Network::Interfaces::VirtualNetworkInterface tapIface;
     sPeerDefinition localTapOptions;
     uint64_t tapHwAddrHash;
 
@@ -31,7 +31,7 @@ struct sAppOptions
     std::map<uint32_t,sPeerDefinition> peersDefinition;
 
     // IPADDR -> Peer connection...
-    CX2::Threads::Safe::Map<uint32_t> connectedPeers;
+    Mantids::Threads::Safe::Map<uint32_t> connectedPeers;
 };
 
 

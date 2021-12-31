@@ -6,7 +6,7 @@
 #include <linux/ip.h>
 #include <netinet/in.h>
 #else
-#include <cx2_net_interfaces/netheaders-windows.h>
+#include <mdz_net_interfaces/netheaders-windows.h>
 #endif
 
 #include <stdint.h>
