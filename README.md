@@ -43,7 +43,7 @@ This program was tested in:
 
 ### Overall Pre-requisites:
 
-* cxFramework2 (in static mode)
+* libMantids (in static mode)
 * OpenSSL (in static mode)
 * cmake3
 * C++11 Compatible Compiler (like GCC >=5)

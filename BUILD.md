@@ -2,7 +2,7 @@
 
 This guide is optimized for centos7 (you can adapt this for your OS), and the generated binary should be compatible with other neewer distributions...
 
-First, as prerequisite, you must have installed cxFramework2 (as static libs, and better if MinSizeRel)
+First, as prerequisite, you must have installed libMantids (as static libs, and better if MinSizeRel)
 
 You also need to have openssl compiled in static mode in /opt/osslibs, and better not to have `openssl-devel`
 
