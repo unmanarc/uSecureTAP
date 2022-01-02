@@ -6,6 +6,29 @@ Author: Aaron Mizrachi (unmanarc) <aaron@unmanarc.com>
 Main License: GPLv3
 
 ***
+## Builds
+
+- COPR (Fedora/CentOS/etc):  
+[![Copr build status](https://copr.fedorainfracloud.org/coprs/amizrachi/uEtherDwarf/package/uEtherDwarf/status_image/last_build.png)](https://copr.fedorainfracloud.org/coprs/amizrachi/uEtherDwarf/package/uEtherDwarf/)
+
+
+Install in Fedora/RHEL8/9:
+```bash
+dnf copr enable amizrachi/libMantids
+dnf copr enable amizrachi/uEtherDwarf
+
+dnf -y install uEtherDwarf
+```
+
+Install in RHEL7:
+```bash
+yum copr enable amizrachi/libMantids
+yum copr enable amizrachi/uEtherDwarf
+
+yum -y install uEtherDwarf
+```
+
+***
 ## Project Description
 
 Simple TLS Client/Server L2 VPN that comes with:
@@ -62,55 +85,4 @@ Stopping the service:
 
 ```
 systemctl stop uEtherDwarf
-```
-
-
-
-Program help:
-
-```
-# Unmanarc's L2 Virtual Private Network (uEtherDwarf) v1.0.1
-# Author:  Aarón Mizrachi (aaron@unmanarc.com)
-# License: GPLv3
-# 
-
-Help:
------
-
-Authentication:
----------------
--f --peersfile <value> : Formatted multi line file (IP:PSK:MAC, first line is for myself) (default: )
-
-Other Options:
---------------
--v --verbose <value> : Set verbosity level. (default: 0)
--h --help            : Show information usage. (default: false)
--s --sys             : Journalctl Log Mode (don't print colors or dates) (default: false)
--x --uid     <value> : Drop Privileged to UID (default: 0)
--g --gid     <value> : Drop Privileged to GID (default: 0)
-
-Scripts:
---------
--u --up   <value> : Up Script (executed when connection is up) (default: )
--w --down <value> : Down Script (executed when connection is down) (default: )
-
-Service Options:
-----------------
--d --daemon         : Run as daemon. (default: false)
-
-TAP Interface:
---------------
--i --interface <value> : Interface Name (default: utap0)
-
-TLS Options:
-------------
--9 --notls            : Disable the use of TLS (default: false)
--4 --ipv4             : Use only IPv4 (default: true)
--y --cafile   <value> : X.509 Certificate Authority Path (default: )
--k --keyfile  <value> : X.509 Private Key Path (For listening mode) (default: )
--c --certfile <value> : X.509 Certificate Path (For listening mode) (default: )
--l --listen           : Use in listen mode (default: false)
--p --port     <value> : Port (default: 443)
--a --addr     <value> : Address (default: *)
--t --threads  <value> : Max Concurrent Connections (Threads) (default: 1024)
 ```
