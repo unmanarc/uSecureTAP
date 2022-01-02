@@ -237,7 +237,7 @@ public:
         appOptions.port         = ((Memory::Abstract::UINT16 *)globalArguments->getCommandLineOptionValue("port"))->getValue();
         appOptions.listenMode   = ((Memory::Abstract::BOOL *)globalArguments->getCommandLineOptionValue("listen"))->getValue();
         appOptions.threadsLimit = ((Memory::Abstract::UINT16 *)globalArguments->getCommandLineOptionValue("threads"))->getValue();
-        appOptions.pingEvery    = ((Memory::Abstract::UINT32 *)globalArguments->getCommandLineOptionValue("pingEvery"))->getValue();
+        appOptions.pingEvery    = ((Memory::Abstract::UINT32 *)globalArguments->getCommandLineOptionValue("pingevery"))->getValue();
 
         sock = (appOptions.notls?new Network::Sockets::Socket_TCP:new Network::TLS::Socket_TLS ) ;
         sock->setUseIPv6( !appOptions.ipv4 );
