@@ -6,7 +6,7 @@ Name:           %{name}
 Version:        %{version}
 Release:        %{build_timestamp}.git%{?dist}
 Summary:        Unmanarc's L2 Virtual Private Network
-License:        AGPL
+License:        GPLv3
 URL:            https://github.com/unmanarc/uEtherDwarf
 Source0:        https://github.com/unmanarc/uEtherDwarf/archive/main.tar.gz#/%{name}-%{version}-%{build_timestamp}.tar.gz
 Group:          Applications/Internet
