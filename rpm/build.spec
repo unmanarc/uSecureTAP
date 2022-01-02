@@ -8,7 +8,7 @@ Release:        %{build_timestamp}.git%{?dist}
 Summary:        Unmanarc's L2 Virtual Private Network
 License:        AGPL
 URL:            https://github.com/unmanarc/uEtherDwarf
-Source0:        https://github.com/unmanarc/uEtherDwarf/archive/master.tar.gz#/%{name}-%{version}-%{build_timestamp}.tar.gz
+Source0:        https://github.com/unmanarc/uEtherDwarf/archive/main.tar.gz#/%{name}-%{version}-%{build_timestamp}.tar.gz
 Group:          Applications/Internet
 
 %define cmake cmake
@@ -46,7 +46,7 @@ Requires: libMantids openssl
 This package contains a simple L2 Virtual Private Network Server/Client with TLS
 
 %prep
-%autosetup -n %{name}-master
+%autosetup -n %{name}-main
 
 %build
 %{cmake} -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=MinSizeRel -DWITH_SSL_SUPPORT=ON
