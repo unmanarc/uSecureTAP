@@ -35,12 +35,12 @@ Group:          Applications/Internet
 
 
 %if 0%{?rhel} == 6
-BuildRequires:  %{cmake} libMantids-devel openssl-devel boost-devel gcc-c++
+BuildRequires:  %{cmake} libMantids-devel zlib-devel openssl-devel boost-devel gcc-c++
 %else
-BuildRequires:  %{cmake} libMantids-devel openssl-devel boost-devel gcc-c++
+BuildRequires:  %{cmake} libMantids-devel zlib-devel openssl-devel boost-devel gcc-c++
 %endif
 
-Requires: libMantids openssl
+Requires: libMantids openssl zlib
 
 %description
 This package contains a simple L2 Virtual Private Network Server/Client with TLS
@@ -49,8 +49,8 @@ This package contains a simple L2 Virtual Private Network Server/Client with TLS
 %autosetup -n %{name}-main
 
 %build
-%{cmake} -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=MinSizeRel -DWITH_SSL_SUPPORT=ON
-%{cmake} -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=MinSizeRel -DWITH_SSL_SUPPORT=ON
+%{cmake} -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=MinSizeRel
+%{cmake} -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=MinSizeRel
 make %{?_smp_mflags}
 
 %clean
