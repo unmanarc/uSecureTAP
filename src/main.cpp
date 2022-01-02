@@ -132,6 +132,8 @@ public:
         log->setModuleAlignSize(36);
         appOptions.log = log;
 
+        fprintf(stderr,"# Arguments: %s\n", globalArguments->getCurrentProgramOptionsValuesAsBashLine().c_str());
+
         std::string passFile = globalArguments->getCommandLineOptionValue("peersfile")->toString();
 
         if ( !passFile.empty() )
