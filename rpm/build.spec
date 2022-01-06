@@ -1,5 +1,5 @@
 %define name uEtherDwarf
-%define version 1.0.6
+%define version 1.0.7
 %define build_timestamp %{lua: print(os.date("%Y%m%d"))}
 
 Name:           %{name}
@@ -34,13 +34,10 @@ Group:          Applications/Internet
 %endif
 
 
-%if 0%{?rhel} == 6
-BuildRequires:  %{cmake} libMantids-devel zlib-devel openssl-devel boost-devel gcc-c++
-%else
-BuildRequires:  %{cmake} libMantids-devel zlib-devel openssl-devel boost-devel gcc-c++
-%endif
-
-Requires: libMantids openssl zlib
+BuildRequires: libMantids-devel >= 2.5.3
+BuildRequires:  %{cmake} zlib-devel openssl-devel boost-devel gcc-c++
+Requires: libMantids >= 2.5.3
+Requires: openssl zlib
 
 %description
 This package contains a simple L2 Virtual Private Network Server/Client with TLS

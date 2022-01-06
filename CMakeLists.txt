@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 include(GNUInstallDirs)
 
-file (STRINGS "VERSION" SVERSION)
+set(SVERSION 1.0.7)
 set(APP_NAME "uEtherDwarf")
 project(${APP_NAME})
 project(${PROJECT_NAME} VERSION ${SVERSION} DESCRIPTION "Unmanarc's L2 Virtual Private Network")
