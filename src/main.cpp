@@ -14,6 +14,7 @@
 #include "app_options.h"
 #include "tls_callbacks.h"
 #include "virtiface_reader.h"
+#include "tls_ping.h"
 
 #include "config.h"
 
@@ -21,10 +22,10 @@ using namespace Mantids;
 using namespace Mantids::Memory;
 using namespace Mantids::Application;
 
-class SecureTAPApp : public Mantids::Application::Application
+class uEtherDwarfApp : public Mantids::Application::Application
 {
 public:
-    SecureTAPApp() {
+    uEtherDwarfApp() {
     }
 
     void _shutdown()
@@ -298,6 +299,7 @@ public:
     int _start(int argc, char *argv[], Arguments::GlobalArguments * globalArguments)
     {
         std::thread( virtIfaceReader, &appOptions ).detach();
+        std::thread( tlsPeersPingThread, &appOptions ).detach();
 
         if (appOptions.listenMode)
         {
@@ -351,7 +353,7 @@ private:
 
 int main(int argc, char *argv[])
 {
-    SecureTAPApp * main = new SecureTAPApp;
+    uEtherDwarfApp * main = new uEtherDwarfApp;
     return StartApplication(argc,argv,main);
 }
 
