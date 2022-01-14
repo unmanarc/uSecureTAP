@@ -35,7 +35,7 @@ bool TLS_Callbacks::onConnect(void *obj, Network::Streams::StreamSocket *sock, c
     bool ok;
     sAppOptions * appOptions = (sAppOptions *)obj;
     std::string tlsCN = appOptions->notls? "" : ((Network::TLS::Socket_TLS *)sock)->getTLSPeerCN();
-    appOptions->log->log0(__func__,Logs::LEVEL_INFO, "Connection established to HOST='%s' CN='%s'",remoteAddr, tlsCN.c_str());
+    appOptions->log->log0(__func__,Logs::LEVEL_INFO, "Connection established to HOST='%s', IP='%s', CN='%s'",remoteAddr, sock->getRemotePairStr().c_str(), tlsCN.c_str());
 
     // Exchange remote VPN IP
     sock->writeU<uint32_t>(appOptions->localTapOptions.aIpAddr.s_addr);
@@ -107,7 +107,14 @@ bool TLS_Callbacks::onConnect(void *obj, Network::Streams::StreamSocket *sock, c
 
         // De-register connection...
         appOptions->connectedPeers.destroyElement( peerDefinition.macAddrHash );
-        appOptions->log->log1(__func__,Abstract::IPV4::_toString(uRemoteVPNIP),Logs::LEVEL_WARN, "Disconnected from %s.", remoteAddr);
+        appOptions->log->log1(__func__,Abstract::IPV4::_toString(uRemoteVPNIP),Logs::LEVEL_WARN, "Disconnected from %s (%s)", remoteAddr, sock->getLastError().c_str());
+        if (sock->isSecure())
+        {
+            for ( auto & i : ((Mantids::Network::TLS::Socket_TLS *)sock)->getTLSErrorsAndClear() )
+            {
+                appOptions->log->log1(__func__,Abstract::IPV4::_toString(uRemoteVPNIP),Logs::LEVEL_WARN, "Disconnected from %s (TLS ERROR: %s)", remoteAddr, i.c_str());
+            }
+        }
 
         // Call the DOWN Script after the disconnection...
         if (!appOptions->downScript.empty())
@@ -138,7 +145,7 @@ bool TLS_Callbacks::onInitFailed(void *, Network::Streams::StreamSocket *s, cons
 
 void TLS_Callbacks::onTimeOut(void *, Network::Streams::StreamSocket *s, const char *, bool)
 {
- /*   s->writeString("HTTP/1.1 503 Service Temporarily Unavailable\r\n");
+    /*   s->writeString("HTTP/1.1 503 Service Temporarily Unavailable\r\n");
     s->writeString("Content-Type: text/html; charset=UTF-8\r\n");
     s->writeString("Connection: close\r\n");
     s->writeString("\r\n");
