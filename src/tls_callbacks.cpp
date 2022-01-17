@@ -65,7 +65,7 @@ bool TLS_Callbacks::onConnect(void *obj, Network::Streams::StreamSocket *sock, c
         char data[65536];
         uint16_t datalen=65535;
 
-        appOptions->log->log1(__func__,Abstract::IPV4::_toString(uRemoteVPNIP),Logs::LEVEL_INFO, "Authenticated to '%s', CN='%s'", remoteAddr, tlsCN.c_str());
+        appOptions->log->log1(__func__,Abstract::IPV4::_toString(uRemoteVPNIP),Logs::LEVEL_INFO, "Connected and Authenticated to '%s', CN='%s'", remoteAddr, tlsCN.c_str());
 
         // Call the UP Script after the authentication...
         if (!appOptions->upScript.empty())
