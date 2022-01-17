@@ -50,6 +50,7 @@ public:
         globalArguments->setDescription(PROJECT_DESCRIPTION);
 
         globalArguments->addCommandLineOption("TAP Interface", 'i', "interface" , "Interface Name"  , "utap0",                      Abstract::TYPE_STRING);
+        globalArguments->addCommandLineOption("TAP Interface",   0, "persistent", "Persistent Mode"  , "true",                      Abstract::TYPE_BOOL);
 
         globalArguments->addCommandLineOption("TLS Options", '9', "notls" , "Disable the use of TLS"  , "false",                    Abstract::TYPE_BOOL);
         globalArguments->addCommandLineOption("TLS Options", '4', "ipv4" , "Use only IPv4"  , "true",                               Abstract::TYPE_BOOL);
@@ -57,6 +58,8 @@ public:
         globalArguments->addCommandLineOption("TLS Options", 'k', "keyfile" , "X.509 Private Key Path (For listening mode)"  , "",  Abstract::TYPE_STRING);
         globalArguments->addCommandLineOption("TLS Options", 'c', "certfile" , "X.509 Certificate Path (For listening mode)"  , "", Abstract::TYPE_STRING);
         globalArguments->addCommandLineOption("TLS Options", 'l', "listen" , "Use in listen mode"  , "false",                       Abstract::TYPE_BOOL);
+
+
         globalArguments->addCommandLineOption("TLS Options", 'p', "port" , "Port"  , "443",                                         Abstract::TYPE_UINT16);
         globalArguments->addCommandLineOption("TLS Options", 'a', "addr" , "Address"  , "*",                                        Abstract::TYPE_STRING);
         globalArguments->addCommandLineOption("TLS Options", 't', "threads" , "Max Concurrent Connections (Threads)"  , "1024",     Abstract::TYPE_UINT16);
@@ -222,6 +225,14 @@ public:
                   tapReadInterfaceName.c_str(),
                   Abstract::MACADDR::_toString(tapIfaceEthAddress.h_dest).c_str());
 
+        if (((Memory::Abstract::BOOL *)globalArguments->getCommandLineOptionValue("persistent"))->getValue())
+        {
+            if (appOptions.tapIface.setPersistentMode(true))
+                log->log0(__func__,Logs::LEVEL_INFO, "TAP Network Interface is now in persistent mode.");
+            else
+                log->log0(__func__,Logs::LEVEL_ERR, "Failed to set up TAP Network Interface in persistent mode.");
+        }
+
         appOptions.tapHwAddrHash    = Abstract::MACADDR::_toHash(tapIfaceEthAddress.h_dest);
         appOptions.ipv4             = ((Memory::Abstract::BOOL *)globalArguments->getCommandLineOptionValue("ipv4"))->getValue();
         appOptions.notls            = ((Memory::Abstract::BOOL *)globalArguments->getCommandLineOptionValue("notls"))->getValue();
@@ -322,13 +333,13 @@ public:
                         exit(-104);
                 }
 
-                log->log0(__func__,Logs::LEVEL_INFO, "Connecting to %s://%s:%d", appOptions.notls?"tcp":"tls",appOptions.addr.c_str(),appOptions.port);
+                log->log0(__func__,Logs::LEVEL_INFO, "Connecting to %s://%s:%d...", appOptions.notls?"tcp":"tls",appOptions.addr.c_str(),appOptions.port);
 
                 if (sock->connectTo(appOptions.addr.c_str(),appOptions.port))
                     TLS_Callbacks::onConnect(&appOptions,sock, appOptions.addr.c_str(),true);
                 else
                 {
-                    log->log0(__func__,Logs::LEVEL_ERR, "Connecting to %s://%s:%d failed - [%s]",  appOptions.notls?"tcp":"tls", appOptions.addr.c_str(),appOptions.port, sock->getLastError().c_str());
+                    log->log0(__func__,Logs::LEVEL_ERR, "%s.",  sock->getLastError().c_str());
 
                     if (!appOptions.notls)
                     {
