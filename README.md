@@ -9,7 +9,7 @@ Main License: GPLv3
 ## Builds
 
 - COPR (Fedora/CentOS/etc):  
-[![Copr build status](https://copr.fedorainfracloud.org/coprs/amizrachi/uEtherDwarf/package/uEtherDwarf/status_image/last_build.png)](https://copr.fedorainfracloud.org/coprs/amizrachi/uEtherDwarf/package/uEtherDwarf/)
+[![Copr build status](https://copr.fedorainfracloud.org/coprs/amizrachi/unmanarc/package/uEtherDwarf/status_image/last_build.png)](https://copr.fedorainfracloud.org/coprs/amizrachi/unmanarc/package/uEtherDwarf/)
 
 
 Install in Fedora/RHEL8/9:
