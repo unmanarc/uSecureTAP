@@ -24,7 +24,7 @@ void tlsPeersPingThread(sAppOptions *appOptions)
                 connection->sock->writeBlockEx<uint16_t>("",0);
                 connection->writeLock.unlock();
 
-                appOptions->connectedPeers.closeElement(peerKey);
+                appOptions->connectedPeers.releaseElement(peerKey);
             }
         }
 

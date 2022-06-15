@@ -34,7 +34,7 @@ void virtIfaceReader(sAppOptions *appOptions)
                     connection->sock->writeBlockEx<uint16_t>(packet,len);
                     connection->writeLock.unlock();
 
-                    appOptions->connectedPeers.closeElement( hEthDst );
+                    appOptions->connectedPeers.releaseElement( hEthDst );
                 }
                 else
                     appOptions->log->log0(__func__,Logs::LEVEL_DEBUG, "IPv4 Packet: Endpoint %s not connected...", Abstract::MACADDR::_fromHASHToString(hEthDst).c_str());
@@ -57,7 +57,7 @@ void virtIfaceReader(sAppOptions *appOptions)
                         TLS_Connection * connection = (TLS_Connection *)appOptions->connectedPeers.openElement( hEthRequested );
                         if (connection)
                         {
-                            appOptions->connectedPeers.closeElement( hEthRequested );
+                            appOptions->connectedPeers.releaseElement( hEthRequested );
 
                             // Prepare the ARP response:
                             char packetcpy[65536];
