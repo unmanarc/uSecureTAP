@@ -7,6 +7,7 @@
 #include <mdz_mem_vars/a_bool.h>
 #include <mdz_mem_vars/a_ipv4.h>
 
+#include <inttypes.h>
 #include <sys/time.h>
 #include <fstream>
 
@@ -17,6 +18,8 @@
 #include "tls_ping.h"
 
 #include "config.h"
+
+#include <inttypes.h>
 
 using namespace Mantids;
 using namespace Mantids::Memory;
@@ -278,7 +281,7 @@ public:
 
             if (!sock->listenOn( appOptions.port, appOptions.addr.c_str() ))
             {
-                log->log0(__func__,Logs::LEVEL_CRITICAL, "Unable to listen at %s:%d",appOptions.addr.c_str(), appOptions.port);
+                log->log0(__func__,Logs::LEVEL_CRITICAL, "Unable to listen at %s:%" PRIu16,appOptions.addr.c_str(), appOptions.port);
                 exit(-20);
                 return false;
             }
@@ -311,7 +314,7 @@ public:
         if (appOptions.listenMode)
         {
             multiThreadedAcceptor.startThreaded();
-            log->log0(__func__,Logs::LEVEL_INFO, "VPN Server Loaded @%s:%d", appOptions.addr.c_str(),appOptions.port);
+            log->log0(__func__,Logs::LEVEL_INFO, "VPN Server Loaded @%s:%" PRIu16, appOptions.addr.c_str(),appOptions.port);
         }
         else
         {
@@ -329,7 +332,7 @@ public:
                         exit(-104);
                 }
 
-                log->log0(__func__,Logs::LEVEL_INFO, "Connecting to %s://%s:%d...", appOptions.notls?"tcp":"tls",appOptions.addr.c_str(),appOptions.port);
+                log->log0(__func__,Logs::LEVEL_INFO, "Connecting to %s://%s:%" PRIu16 "...", appOptions.notls?"tcp":"tls",appOptions.addr.c_str(),appOptions.port);
 
                 if (sock->connectTo(appOptions.addr.c_str(),appOptions.port))
                     TLS_Callbacks::onConnect(&appOptions,sock, appOptions.addr.c_str(),true);
