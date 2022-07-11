@@ -34,9 +34,9 @@ Group:          Applications/Internet
 %endif
 
 
-BuildRequires: libMantids-devel >= 2.5.14
+BuildRequires: libMantids-devel >= 2.7.0
 BuildRequires:  %{cmake} zlib-devel openssl-devel boost-devel gcc-c++
-Requires: libMantids >= 2.5.14
+Requires: libMantids >= 2.7.0
 Requires: openssl zlib
 
 %description
