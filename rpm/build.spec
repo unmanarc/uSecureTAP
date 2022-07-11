@@ -1,5 +1,5 @@
 %define name uEtherDwarf
-%define version 1.0.11
+%define version 1.1.0
 %define build_timestamp %{lua: print(os.date("%Y%m%d"))}
 
 Name:           %{name}

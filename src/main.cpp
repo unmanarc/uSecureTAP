@@ -1,7 +1,7 @@
 #include <thread>
 
 #include <mdz_prg_service/application.h>
-#include <mdz_net_sockets/socket_acceptor_multithreaded.h>
+#include <mdz_net_sockets/acceptor_multithreaded.h>
 #include <mdz_mem_vars/a_uint16.h>
 #include <mdz_mem_vars/a_uint32.h>
 #include <mdz_mem_vars/a_bool.h>
@@ -24,6 +24,8 @@
 using namespace Mantids;
 using namespace Mantids::Memory;
 using namespace Mantids::Application;
+using namespace Mantids::Network::Sockets;
+using namespace Mantids::Network::Interfaces;
 
 class uEtherDwarfApp : public Mantids::Application::Application
 {
@@ -48,37 +50,37 @@ public:
         globalArguments->setEmail("aaron@unmanarc.com");
         globalArguments->setDescription(PROJECT_DESCRIPTION);
 
-        globalArguments->addCommandLineOption("TAP Interface", 'i', "interface" , "Interface Name"  , "utap0",                      Abstract::TYPE_STRING);
-        globalArguments->addCommandLineOption("TAP Interface",   0, "persistent", "Persistent Mode"  , "true",                      Abstract::TYPE_BOOL);
+        globalArguments->addCommandLineOption("TAP Interface", 'i', "interface" , "Interface Name"  , "utap0",                      Abstract::Var::TYPE_STRING);
+        globalArguments->addCommandLineOption("TAP Interface",   0, "persistent", "Persistent Mode"  , "true",                      Abstract::Var::TYPE_BOOL);
 
-        globalArguments->addCommandLineOption("TLS Options", '9', "notls" , "Disable the use of TLS"  , "false",                    Abstract::TYPE_BOOL);
-        globalArguments->addCommandLineOption("TLS Options", '4', "ipv4" , "Use only IPv4"  , "true",                               Abstract::TYPE_BOOL);
-        globalArguments->addCommandLineOption("TLS Options", 'y', "cafile" , "X.509 Certificate Authority Path", "",                Abstract::TYPE_STRING);
-        globalArguments->addCommandLineOption("TLS Options", 'k', "keyfile" , "X.509 Private Key Path (For listening mode)"  , "",  Abstract::TYPE_STRING);
-        globalArguments->addCommandLineOption("TLS Options", 'c', "certfile" , "X.509 Certificate Path (For listening mode)"  , "", Abstract::TYPE_STRING);
-        globalArguments->addCommandLineOption("TLS Options", 'l', "listen" , "Use in listen mode"  , "false",                       Abstract::TYPE_BOOL);
-
-
-        globalArguments->addCommandLineOption("TLS Options", 'p', "port" , "Port"  , "443",                                         Abstract::TYPE_UINT16);
-        globalArguments->addCommandLineOption("TLS Options", 'a', "addr" , "Address"  , "*",                                        Abstract::TYPE_STRING);
-        globalArguments->addCommandLineOption("TLS Options", 't', "threads" , "Max Concurrent Connections (Threads)"  , "1024",     Abstract::TYPE_UINT16);
-        globalArguments->addCommandLineOption("TLS Options", 'e', "pingevery" , "Ping every (Seconds), 0 to disable"  , "10",       Abstract::TYPE_UINT32);
+        globalArguments->addCommandLineOption("TLS Options", '9', "notls" , "Disable the use of TLS"  , "false",                    Abstract::Var::TYPE_BOOL);
+        globalArguments->addCommandLineOption("TLS Options", '4', "ipv4" , "Use only IPv4"  , "true",                               Abstract::Var::TYPE_BOOL);
+        globalArguments->addCommandLineOption("TLS Options", 'y', "cafile" , "X.509 Certificate Authority Path", "",                Abstract::Var::TYPE_STRING);
+        globalArguments->addCommandLineOption("TLS Options", 'k', "keyfile" , "X.509 Private Key Path (For listening mode)"  , "",  Abstract::Var::TYPE_STRING);
+        globalArguments->addCommandLineOption("TLS Options", 'c', "certfile" , "X.509 Certificate Path (For listening mode)"  , "", Abstract::Var::TYPE_STRING);
+        globalArguments->addCommandLineOption("TLS Options", 'l', "listen" , "Use in listen mode"  , "false",                       Abstract::Var::TYPE_BOOL);
 
 
-        globalArguments->addCommandLineOption("Scripts", 'u', "up" , "Up Script (executed when connection is up)"  , "",            Abstract::TYPE_STRING);
-        globalArguments->addCommandLineOption("Scripts", 'w', "down" , "Down Script (executed when connection is down)"  , "",      Abstract::TYPE_STRING);
+        globalArguments->addCommandLineOption("TLS Options", 'p', "port" , "Port"  , "443",                                         Abstract::Var::TYPE_UINT16);
+        globalArguments->addCommandLineOption("TLS Options", 'a', "addr" , "Address"  , "*",                                        Abstract::Var::TYPE_STRING);
+        globalArguments->addCommandLineOption("TLS Options", 't', "threads" , "Max Concurrent Connections (Threads)"  , "1024",     Abstract::Var::TYPE_UINT16);
+        globalArguments->addCommandLineOption("TLS Options", 'e', "pingevery" , "Ping every (Seconds), 0 to disable"  , "10",       Abstract::Var::TYPE_UINT32);
 
-        globalArguments->addCommandLineOption("Authentication", 'f', "peersfile" , "Formatted multi line file (IP:PSK:MAC, first line is for myself)"  , "", Abstract::TYPE_STRING);
-        globalArguments->addCommandLineOption("Other Options", 's', "sys" , "Journalctl Log Mode (don't print colors or dates)"  , "false",                  Abstract::TYPE_BOOL);
+
+        globalArguments->addCommandLineOption("Scripts", 'u', "up" , "Up Script (executed when connection is up)"  , "",            Abstract::Var::TYPE_STRING);
+        globalArguments->addCommandLineOption("Scripts", 'w', "down" , "Down Script (executed when connection is down)"  , "",      Abstract::Var::TYPE_STRING);
+
+        globalArguments->addCommandLineOption("Authentication", 'f', "peersfile" , "Formatted multi line file (IP:PSK:MAC, first line is for myself)"  , "", Abstract::Var::TYPE_STRING);
+        globalArguments->addCommandLineOption("Other Options", 's', "sys" , "Journalctl Log Mode (don't print colors or dates)"  , "false",                  Abstract::Var::TYPE_BOOL);
 
 #ifndef _WIN32
-        globalArguments->addCommandLineOption("Other Options", 'x', "uid" , "Drop Privileged to UID"  , "0",                        Abstract::TYPE_UINT16);
-        globalArguments->addCommandLineOption("Other Options", 'g', "gid" , "Drop Privileged to GID"  , "0",                        Abstract::TYPE_UINT16);
+        globalArguments->addCommandLineOption("Other Options", 'x', "uid" , "Drop Privileged to UID"  , "0",                        Abstract::Var::TYPE_UINT16);
+        globalArguments->addCommandLineOption("Other Options", 'g', "gid" , "Drop Privileged to GID"  , "0",                        Abstract::Var::TYPE_UINT16);
 #endif
 
     }
 
-    bool loadTLSParameters(Network::Sockets::Socket_TCP *sock, bool clientMode, bool printUsing = true)
+    bool loadTLSParameters(Socket_TCP *sock, bool clientMode, bool printUsing = true)
     {
         if (!appOptions.cafile.empty() || clientMode)
         {
@@ -87,7 +89,7 @@ public:
                 log->log0(__func__,Logs::LEVEL_CRITICAL, "X.509 Certificate Authority File Not Found.");
                 return false;
             }
-            ((Mantids::Network::TLS::Socket_TLS *)sock)->setTLSCertificateAuthorityPath(appOptions.cafile.c_str());
+            ((Socket_TLS *)sock)->setTLSCertificateAuthorityPath(appOptions.cafile.c_str());
 
             // Only print this in the header...
             if (!printUsing)
@@ -105,7 +107,7 @@ public:
                 return false;
             }
             if (printUsing) log->log0(__func__,Logs::LEVEL_INFO, "Using peer TLS private key: %s",appOptions.keyfile.c_str());
-            ((Mantids::Network::TLS::Socket_TLS *)sock)->setTLSPrivateKeyPath(appOptions.keyfile.c_str());
+            ((Socket_TLS *)sock)->setTLSPrivateKeyPath(appOptions.keyfile.c_str());
         }
 
         if (!clientMode || !appOptions.certfile.empty())
@@ -116,15 +118,15 @@ public:
                 return false;
             }
             if (printUsing) log->log0(__func__,Logs::LEVEL_INFO, "Using peer TLS certificate: %s",appOptions.certfile.c_str());
-            ((Mantids::Network::TLS::Socket_TLS *)sock)->setTLSPublicKeyPath(appOptions.certfile.c_str());
+            ((Socket_TLS *)sock)->setTLSPublicKeyPath(appOptions.certfile.c_str());
         }
         return true;
     }
 
     bool _config(int argc, char *argv[], Arguments::GlobalArguments * globalArguments)
     {
-        Mantids::Network::TLS::Socket_TLS::prepareTLS();
-        bool configUseFancy    = !((Memory::Abstract::BOOL *)globalArguments->getCommandLineOptionValue("sys"))->getValue();
+        Socket_TLS::prepareTLS();
+        bool configUseFancy    = !((Abstract::BOOL *)globalArguments->getCommandLineOptionValue("sys"))->getValue();
 
         log = new Logs::AppLog();
         log->setPrintEmptyFields(true);
@@ -189,7 +191,7 @@ public:
 
         appOptions.ifaceName = globalArguments->getCommandLineOptionValue("interface")->toString();
 
-        Mantids::Network::Interfaces::NetIfConfig tapIfaceCfg;
+        NetIfConfig tapIfaceCfg;
         tapIfaceCfg.setUP(true);
         if ( ! appOptions.tapIface.start(&tapIfaceCfg,appOptions.ifaceName) )
         {
@@ -224,7 +226,7 @@ public:
                   tapReadInterfaceName.c_str(),
                   Abstract::MACADDR::_toString(tapIfaceEthAddress.h_dest).c_str());
 
-        if (((Memory::Abstract::BOOL *)globalArguments->getCommandLineOptionValue("persistent"))->getValue())
+        if (((Abstract::BOOL *)globalArguments->getCommandLineOptionValue("persistent"))->getValue())
         {
             if (appOptions.tapIface.setPersistentMode(true))
                 log->log0(__func__,Logs::LEVEL_INFO, "TAP Network Interface is now in persistent mode.");
@@ -233,8 +235,8 @@ public:
         }
 
         appOptions.tapHwAddrHash    = Abstract::MACADDR::_toHash(tapIfaceEthAddress.h_dest);
-        appOptions.ipv4             = ((Memory::Abstract::BOOL *)globalArguments->getCommandLineOptionValue("ipv4"))->getValue();
-        appOptions.notls            = ((Memory::Abstract::BOOL *)globalArguments->getCommandLineOptionValue("notls"))->getValue();
+        appOptions.ipv4             = ((Abstract::BOOL *)globalArguments->getCommandLineOptionValue("ipv4"))->getValue();
+        appOptions.notls            = ((Abstract::BOOL *)globalArguments->getCommandLineOptionValue("notls"))->getValue();
 
         if (appOptions.notls)
             log->log0(__func__,Logs::LEVEL_WARN, "Proceding in plain-text mode, eavesdropping communications will be easy!!!");
@@ -245,19 +247,19 @@ public:
         appOptions.certfile     = globalArguments->getCommandLineOptionValue("certfile")->toString();
         appOptions.keyfile      = globalArguments->getCommandLineOptionValue("keyfile")->toString();
         appOptions.addr         = globalArguments->getCommandLineOptionValue("addr")->toString();
-        appOptions.port         = ((Memory::Abstract::UINT16 *)globalArguments->getCommandLineOptionValue("port"))->getValue();
-        appOptions.listenMode   = ((Memory::Abstract::BOOL *)globalArguments->getCommandLineOptionValue("listen"))->getValue();
-        appOptions.threadsLimit = ((Memory::Abstract::UINT16 *)globalArguments->getCommandLineOptionValue("threads"))->getValue();
-        appOptions.pingEvery    = ((Memory::Abstract::UINT32 *)globalArguments->getCommandLineOptionValue("pingevery"))->getValue();
+        appOptions.port         = ((Abstract::UINT16 *)globalArguments->getCommandLineOptionValue("port"))->getValue();
+        appOptions.listenMode   = ((Abstract::BOOL *)globalArguments->getCommandLineOptionValue("listen"))->getValue();
+        appOptions.threadsLimit = ((Abstract::UINT16 *)globalArguments->getCommandLineOptionValue("threads"))->getValue();
+        appOptions.pingEvery    = ((Abstract::UINT32 *)globalArguments->getCommandLineOptionValue("pingevery"))->getValue();
 
-        sock = (appOptions.notls?new Network::Sockets::Socket_TCP:new Network::TLS::Socket_TLS ) ;
+        sock = (appOptions.notls?new Socket_TCP:new Socket_TLS ) ;
         sock->setUseIPv6( !appOptions.ipv4 );
 
-        appOptions.uid = ((Memory::Abstract::UINT16 *)globalArguments->getCommandLineOptionValue("uid"))->getValue();
-        appOptions.gid = ((Memory::Abstract::UINT16 *)globalArguments->getCommandLineOptionValue("gid"))->getValue();
+        appOptions.uid = ((Abstract::UINT16 *)globalArguments->getCommandLineOptionValue("uid"))->getValue();
+        appOptions.gid = ((Abstract::UINT16 *)globalArguments->getCommandLineOptionValue("gid"))->getValue();
 
         tapIfaceCfg.setIPv4Address(appOptions.localTapOptions.aIpAddr,
-                                   Mantids::Memory::Abstract::IPV4::_fromCIDRMask(appOptions.localTapOptions.cidrNetmask)
+                                   Abstract::IPV4::_fromCIDRMask(appOptions.localTapOptions.cidrNetmask)
                                    );
 
         if (!tapIfaceCfg.apply())
@@ -323,7 +325,7 @@ public:
                 if (sock)
                     delete sock;
 
-                sock = (appOptions.notls?new Network::Sockets::Socket_TCP:new Network::TLS::Socket_TLS ) ;
+                sock = (appOptions.notls?new Socket_TCP:new Socket_TLS ) ;
                 sock->setUseIPv6( !appOptions.ipv4 );
 
                 if (!appOptions.notls)
@@ -342,7 +344,7 @@ public:
 
                     if (!appOptions.notls)
                     {
-                        for (const auto & i: ((Mantids::Network::TLS::Socket_TLS *)sock)->getTLSErrorsAndClear())
+                        for (const auto & i: ((Socket_TLS *)sock)->getTLSErrorsAndClear())
                             log->log0(__func__,Logs::LEVEL_ERR, "TLS Error - [%s]", i.c_str());
                     }
                 }
@@ -357,8 +359,8 @@ public:
 private:
     sAppOptions appOptions;
     Logs::AppLog * log;
-    Network::Sockets::Socket_TCP *sock;
-    Network::Sockets::Acceptors::Socket_Acceptor_MultiThreaded multiThreadedAcceptor;
+    Socket_TCP *sock;
+    Acceptors::MultiThreaded multiThreadedAcceptor;
 };
 
 int main(int argc, char *argv[])

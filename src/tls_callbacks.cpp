@@ -7,13 +7,14 @@
 #include <mdz_hlp_functions/appexec.h>
 
 #include <mdz_hlp_functions/random.h>
-#include <mdz_net_sockets/cryptostream.h>
+#include <mdz_net_sockets/streams_cryptochallenge.h>
 
 #include <mdz_mem_vars/a_ipv4.h>
 
 using namespace Mantids;
 using namespace Mantids::Memory;
 using namespace Mantids::Application;
+using namespace Mantids::Network::Sockets;
 
 TLS_Callbacks::TLS_Callbacks()
 {
@@ -30,11 +31,11 @@ std::string genCombinedKey(sAppOptions * appOptions, const sPeerDefinition & pee
         return peerDefinition.key + appOptions->localTapOptions.key;
 }
 
-bool TLS_Callbacks::onConnect(void *obj, Network::Streams::StreamSocket *sock, const char * remoteAddr, bool)
+bool TLS_Callbacks::onConnect(void *obj, Network::Sockets::Socket_StreamBase *sock, const char * remoteAddr, bool)
 {
     bool ok;
     sAppOptions * appOptions = (sAppOptions *)obj;
-    std::string tlsCN = appOptions->notls? "" : ((Network::TLS::Socket_TLS *)sock)->getTLSPeerCN();
+    std::string tlsCN = appOptions->notls? "" : ((Network::Sockets::Socket_TLS *)sock)->getTLSPeerCN();
     appOptions->log->log0(__func__,Logs::LEVEL_INFO, "Connection established to HOST='%s', IP='%s', CN='%s'",remoteAddr, sock->getRemotePairStr().c_str(), tlsCN.c_str());
 
     // Exchange remote VPN IP
@@ -52,7 +53,7 @@ bool TLS_Callbacks::onConnect(void *obj, Network::Streams::StreamSocket *sock, c
         peerDefinition = appOptions->peersDefinition[uRemoteVPNIP];
 
     // Exchange keys (mutual auth):
-    Mantids::Network::Streams::CryptoStream cstreams(sock);
+    Mantids::Network::Sockets::NetStreams::CryptoChallenge cstreams(sock);
     if (cstreams.mutualChallengeResponseSHA256Auth( genCombinedKey(appOptions,peerDefinition) ,appOptions->listenMode) == std::make_pair(true,true))
     {
         // Peer not found:
@@ -110,7 +111,7 @@ bool TLS_Callbacks::onConnect(void *obj, Network::Streams::StreamSocket *sock, c
         appOptions->log->log1(__func__,Abstract::IPV4::_toString(uRemoteVPNIP),Logs::LEVEL_WARN, "Disconnected from %s (%s)", remoteAddr, sock->getLastError().c_str());
         if (sock->isSecure())
         {
-            for ( auto & i : ((Mantids::Network::TLS::Socket_TLS *)sock)->getTLSErrorsAndClear() )
+            for ( auto & i : ((Mantids::Network::Sockets::Socket_TLS *)sock)->getTLSErrorsAndClear() )
             {
                 appOptions->log->log1(__func__,Abstract::IPV4::_toString(uRemoteVPNIP),Logs::LEVEL_WARN, "Disconnected from %s (TLS ERROR: %s)", remoteAddr, i.c_str());
             }
@@ -138,12 +139,12 @@ bool TLS_Callbacks::onConnect(void *obj, Network::Streams::StreamSocket *sock, c
 
 }
 
-bool TLS_Callbacks::onInitFailed(void *, Network::Streams::StreamSocket *s, const char *, bool)
+bool TLS_Callbacks::onInitFailed(void *, Network::Sockets::Socket_StreamBase *s, const char *, bool)
 {
     return true;
 }
 
-void TLS_Callbacks::onTimeOut(void *, Network::Streams::StreamSocket *s, const char *, bool)
+void TLS_Callbacks::onTimeOut(void *, Network::Sockets::Socket_StreamBase *s, const char *, bool)
 {
     /*   s->writeString("HTTP/1.1 503 Service Temporarily Unavailable\r\n");
     s->writeString("Content-Type: text/html; charset=UTF-8\r\n");
