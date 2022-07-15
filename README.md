@@ -12,18 +12,31 @@ Main License: GPLv3
 [![Copr build status](https://copr.fedorainfracloud.org/coprs/amizrachi/unmanarc/package/uEtherDwarf/status_image/last_build.png)](https://copr.fedorainfracloud.org/coprs/amizrachi/unmanarc/package/uEtherDwarf/)
 
 
-Install in Fedora/RHEL8/9:
-```bash
-dnf copr enable amizrachi/unmanarc
+### Simple installation guide for Fedora/RHEL:
 
-dnf -y install uEtherDwarf
+To activate our repo's and download/install the software:
+
+In RHEL7:
+```bash
+# Install EPEL Repo + COPR
+yum -y install epel-release
+yum -y install yum-plugin-copr
+
+# Install unmanarc's copr
+yum copr enable amizrachi/unmanarc -y
+yum -y install uEtherDwarf
 ```
 
-Install in RHEL7:
+In RHEL8:
 ```bash
-yum copr enable amizrachi/unmanarc
+# Install EPEL Repo
+dnf -y install 'dnf-command(config-manager)'
+dnf config-manager --set-enabled powertools
+dnf -y install epel-release
 
-yum -y install uEtherDwarf
+# Install unmanarc's copr
+dnf copr enable amizrachi/unmanarc -y
+dnf -y install uEtherDwarf
 ```
 
 ***
@@ -73,14 +86,22 @@ This program was tested in:
 
 Here are the instructions to use this program:
 
-Starting the service:
+- Starting the service:
 
 ```
 systemctl start uEtherDwarf
 ```
 
-Stopping the service:
+- Stopping the service:
 
 ```
 systemctl stop uEtherDwarf
 ```
+
+- Installing the service:
+
+```
+systemctl enable uEtherDwarf
+```
+
+- Don't forget to open the firewall
