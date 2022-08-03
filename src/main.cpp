@@ -89,7 +89,7 @@ public:
                 log->log0(__func__,Logs::LEVEL_CRITICAL, "X.509 Certificate Authority File Not Found.");
                 return false;
             }
-            ((Socket_TLS *)sock)->setTLSCertificateAuthorityPath(appOptions.cafile.c_str());
+            ((Socket_TLS *)sock)->keys.loadCAFromPEMFile(appOptions.cafile.c_str());
 
             // Only print this in the header...
             if (!printUsing)
@@ -107,7 +107,7 @@ public:
                 return false;
             }
             if (printUsing) log->log0(__func__,Logs::LEVEL_INFO, "Using peer TLS private key: %s",appOptions.keyfile.c_str());
-            ((Socket_TLS *)sock)->setTLSPrivateKeyPath(appOptions.keyfile.c_str());
+            ((Socket_TLS *)sock)->keys.loadPrivateKeyFromPEMFile(appOptions.keyfile.c_str());
         }
 
         if (!clientMode || !appOptions.certfile.empty())
@@ -118,7 +118,7 @@ public:
                 return false;
             }
             if (printUsing) log->log0(__func__,Logs::LEVEL_INFO, "Using peer TLS certificate: %s",appOptions.certfile.c_str());
-            ((Socket_TLS *)sock)->setTLSPublicKeyPath(appOptions.certfile.c_str());
+            ((Socket_TLS *)sock)->keys.loadPublicKeyFromPEMFile(appOptions.certfile.c_str());
         }
         return true;
     }
