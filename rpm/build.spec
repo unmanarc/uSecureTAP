@@ -1,5 +1,5 @@
 %define name uEtherDwarf
-%define version 1.1.1
+%define version 1.1.2
 %define build_timestamp %{lua: print(os.date("%Y%m%d"))}
 
 Name:           %{name}
@@ -34,9 +34,9 @@ Group:          Applications/Internet
 %endif
 
 
-BuildRequires: libMantids-devel >= 2.7.1
+BuildRequires: libMantids-devel >= 2.7.2
 BuildRequires:  %{cmake} zlib-devel openssl-devel boost-devel gcc-c++
-Requires: libMantids >= 2.7.1
+Requires: libMantids >= 2.7.2
 Requires: openssl zlib
 
 %description
